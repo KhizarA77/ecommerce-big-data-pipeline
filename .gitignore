@@ -1,0 +1,4 @@
+/kafka-producer/node_modules/
+/airflow-data/
+/dags/
+/ecommerce_data.csv
