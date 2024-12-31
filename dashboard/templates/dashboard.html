@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chart.js with Flask</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+      }
+
+      .dashboard-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .chart-container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        overflow: hidden;
+      }
+
+      canvas {
+        width: 100% !important;
+        height: auto !important;
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-container {
+          grid-template-columns: 1fr;
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sales Data</h1>
+    <div class="dashboard-container">
+      <div class="chart-container">
+        <canvas id="barChart1" width="800" height="800"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="barChart2" width="800" height="800"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="pieChart" width="800" height="400"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="pieChart2" width="800" height="400"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="fraudChart" width="800" height="800"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="barChart3" width="400" height="400"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="lineChart" width="400" height="400"></canvas>
+      </div>
+    </div>
+
+    <script>
+      // Fetch chart data from the Flask endpoint
+      // Fetch chart data from the Flask endpoint
+
+      // Fetch chart data from the Flask endpoint
+      fetch("http://110.93.247.8:3000/values?query=age_group")
+        .then((response) => response.json())
+        .then((data) => {
+          const chartData = {
+            labels: data.labels, // Age groups on the x-axis
+            datasets: [
+              {
+                label: "Count by Age Group", // Dataset label
+                data: data.values, // Values for the y-axis
+                backgroundColor: "rgba(255, 99, 132, 0.6)", // Bar fill color (red with transparency)
+                borderColor: "rgba(255, 99, 132, 1)", // Bar border color (solid red)
+                borderWidth: 1, // Bar border width
+              },
+            ],
+          };
+
+          const ctx = document.getElementById("barChart2").getContext("2d");
+          new Chart(ctx, {
+            type: "bar", // Bar graph
+            data: chartData,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: true, // Show legend
+                  position: "top", // Legend position
+                },
+                title: {
+                  display: true,
+                  text: "Distribution by Age Group", // Title of the graph
+                  font: {
+                    size: 18, // Font size for the title
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Age Groups", // Label for the x-axis
+                  },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Counts", // Label for the y-axis
+                  },
+                  beginAtZero: true, // Start y-axis at zero
+                },
+              },
+            },
+          });
+        })
+        .catch((error) => console.error("Error fetching chart data:", error));
+
+      fetch("http://110.93.247.8:3000/values?query=city")
+        .then((response) => response.json())
+        .then((data) => {
+          const chartData = {
+            labels: data.cities, // Cities as x-axis labels
+            datasets: [
+              {
+                label: "Transaction Counts", // Label for the dataset
+                data: data.transaction_counts, // Transaction counts as y-axis values
+                backgroundColor: "rgba(54, 162, 235, 0.6)", // Bar fill color
+                borderColor: "rgba(54, 162, 235, 1)", // Bar border color
+                borderWidth: 1, // Bar border width
+              },
+            ],
+          };
+
+          const ctx = document.getElementById("barChart1").getContext("2d");
+          new Chart(ctx, {
+            type: "bar", // Bar graph
+            data: chartData,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: true, // Show legend
+                  position: "top", // Legend position
+                },
+                title: {
+                  display: true,
+                  text: "Transaction Counts by City", // Title of the graph
+                  font: {
+                    size: 18, // Font size for the title
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Cities", // Label for the x-axis
+                  },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Transaction Counts", // Label for the y-axis
+                  },
+                  beginAtZero: true, // Start the y-axis at zero
+                },
+              },
+            },
+          });
+        })
+        .catch((error) => console.error("Error fetching chart data:", error));
+
+      // Fetch and render the Line Chart
+      // Fetch chart data from the Flask endpoint
+      fetch("http://110.93.247.8:3000/values?query=category")
+        .then((response) => response.json())
+        .then((data) => {
+          // Bar chart for Transaction Counts
+          const barChartData = {
+            labels: data.categories, // Categories on the x-axis
+            datasets: [
+              {
+                label: "Category Analytics - Transaction Count",
+                data: data.transaction_counts, // Values for transaction counts
+                backgroundColor: "rgba(54, 162, 235, 0.6)", // Bar color
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+              },
+            ],
+          };
+
+          const ctxBar = document.getElementById("barChart3").getContext("2d");
+          new Chart(ctxBar, {
+            type: "bar", // Bar chart type
+            data: barChartData,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+                title: {
+                  display: true,
+                  text: "Transaction Counts by Category",
+                  font: {
+                    size: 18,
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Categories",
+                  },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Transaction Counts",
+                  },
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+
+          // Line chart for Average Amounts
+          const lineChartData = {
+            labels: data.categories, // Categories on the x-axis
+            datasets: [
+              {
+                label: "Category Analytics - Avg Transaction Amount",
+                data: data.avg_amounts, // Values for average amounts
+                borderColor: "rgba(255, 99, 132, 1)", // Line color
+                backgroundColor: "rgba(255, 99, 132, 0.2)", // Fill under line
+                fill: true, // Show filled area under the line
+                tension: 0.4, // Smooth line
+              },
+            ],
+          };
+
+          const ctxLine = document.getElementById("lineChart").getContext("2d");
+          new Chart(ctxLine, {
+            type: "line", // Line chart type
+            data: lineChartData,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+                title: {
+                  display: true,
+                  text: "Average Amounts by Category",
+                  font: {
+                    size: 18,
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Categories",
+                  },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Average Amounts",
+                  },
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        })
+        .catch((error) => console.error("Error fetching chart data:", error));
+
+      // Fetch and render the Pie Chart with sector titles
+      fetch("http://110.93.247.8:3000/values?query=payment_method")
+        .then((response) => response.json())
+        .then((data) => {
+          // Restructure data for Chart.js
+          const chartData = {
+            labels: data.labels, // Use the "labels" array from the response
+            datasets: [
+              {
+                data: data.values, // Use the "values" array from the response
+                backgroundColor: [
+                  // Add colors for the pie chart sectors
+                  "#FF6384",
+                  "#36A2EB",
+                  "#FFCE56",
+                  "#4BC0C0",
+                  "#9966FF",
+                  "#FF9F40",
+                ],
+                hoverBackgroundColor: [
+                  // Hover colors for sectors
+                  "#FF6384",
+                  "#36A2EB",
+                  "#FFCE56",
+                  "#4BC0C0",
+                  "#9966FF",
+                  "#FF9F40",
+                ],
+              },
+            ],
+          };
+
+          // Create the chart
+          const ctxPie = document.getElementById("pieChart").getContext("2d");
+          new Chart(ctxPie, {
+            type: "pie",
+            data: chartData,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "top", // Legend placement (top, bottom, left, right)
+                },
+                title: {
+                  display: true,
+                  text: "Sales Distribution by Payment Method",
+                  font: {
+                    size: 18,
+                  },
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (tooltipItem) {
+                      const label = tooltipItem.label || "";
+                      const value = tooltipItem.raw;
+                      return `${label}: ${value}`;
+                    },
+                  },
+                },
+                datalabels: {
+                  display: true, // Enable labels
+                  color: "#000", // Label text color
+                  font: {
+                    size: 10, // Label font size
+                    weight: "light",
+                  },
+                  formatter: (value, context) => {
+                    // Customize label text (show value + percentage)
+                    const total = context.chart.data.datasets[0].data.reduce(
+                      (a, b) => a + b,
+                      0
+                    );
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return `${
+                      context.chart.data.labels[context.dataIndex]
+                    } (${percentage}%)`;
+                  },
+                },
+              },
+            },
+            plugins: [ChartDataLabels], // Register the plugin
+          });
+        })
+        .catch((error) =>
+          console.error("Error fetching pie chart data:", error)
+        );
+
+      fetch("http://110.93.247.8:3000/values?query=device")
+        .then((response) => response.json())
+        .then((data) => {
+          // Restructure data for Chart.js
+          const chartData = {
+            labels: data.labels, // Use the "labels" array from the response
+            datasets: [
+              {
+                data: data.values, // Use the "values" array from the response
+                backgroundColor: [
+                  // Add colors for the pie chart sectors
+                  "#FF6384",
+                  "#36A2EB",
+                  "#FFCE56",
+                  "#4BC0C0",
+                  "#9966FF",
+                  "#FF9F40",
+                ],
+                hoverBackgroundColor: [
+                  // Hover colors for sectors
+                  "#FF6384",
+                  "#36A2EB",
+                  "#FFCE56",
+                  "#4BC0C0",
+                  "#9966FF",
+                  "#FF9F40",
+                ],
+              },
+            ],
+          };
+
+          // Create the chart
+          const ctxPie = document.getElementById("pieChart2").getContext("2d");
+          new Chart(ctxPie, {
+            type: "pie",
+            data: chartData,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "top", // Legend placement (top, bottom, left, right)
+                },
+                title: {
+                  display: true,
+                  text: "Devices Against # Of Transactions",
+                  font: {
+                    size: 18,
+                  },
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (tooltipItem) {
+                      const label = tooltipItem.label || "";
+                      const value = tooltipItem.raw;
+                      return `${label}: ${value}`;
+                    },
+                  },
+                },
+                datalabels: {
+                  display: true, // Enable labels
+                  color: "#000", // Label text color
+                  font: {
+                    size: 10, // Label font size
+                    weight: "light",
+                  },
+                  formatter: (value, context) => {
+                    // Customize label text (show value + percentage)
+                    const total = context.chart.data.datasets[0].data.reduce(
+                      (a, b) => a + b,
+                      0
+                    );
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return `${
+                      context.chart.data.labels[context.dataIndex]
+                    } (${percentage}%)`;
+                  },
+                },
+              },
+            },
+            plugins: [ChartDataLabels], // Register the plugin
+          });
+        })
+        .catch((error) =>
+          console.error("Error fetching pie chart data:", error)
+        );
+
+      // Fetch chart data from the Flask endpoint
+      fetch("http://110.93.247.8:3000/values?query=fraud")
+        .then((response) => response.json())
+        .then((data) => {
+          const chartData = {
+            labels: data.categories, // Categories on the y-axis
+            datasets: [
+              {
+                label: "Fraud Percentages (%)", // Dataset label
+                data: data.fraud_percentages, // Fraud percentages
+                backgroundColor: "rgba(54, 162, 235, 0.7)", // Bar color (semi-transparent blue)
+                borderColor: "rgba(54, 162, 235, 1)", // Bar border color
+                borderWidth: 1, // Bar border thickness
+              },
+            ],
+          };
+
+          const ctx = document.getElementById("fraudChart").getContext("2d");
+          new Chart(ctx, {
+            type: "bar", // Bar chart type
+            data: chartData,
+            options: {
+              indexAxis: "y", // Make the bars horizontal
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: "top", // Legend position
+                },
+                title: {
+                  display: true,
+                  text: "Fraud Percentages by Category", // Chart title
+                  font: {
+                    size: 18, // Title font size
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Fraud Percentages (%)", // Label for the x-axis
+                  },
+                  beginAtZero: true, // Ensure x-axis starts at 0
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Categories", // Label for the y-axis
+                  },
+                },
+              },
+            },
+          });
+        })
+        .catch((error) => console.error("Error fetching fraud data:", error));
+    </script>
+  </body>
+</html>

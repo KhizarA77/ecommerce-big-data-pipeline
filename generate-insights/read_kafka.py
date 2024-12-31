@@ -139,11 +139,11 @@ device_usage.count()
 print("Device Usage Distribution done")
 
 # 6. Income vs. Average Spending
-income_spending = casted_df.groupBy("user_income") \
-    .agg(F.avg("total_amount").alias("avg_transaction_amount"))
+# income_spending = casted_df.groupBy("user_income") \
+#     .agg(F.avg("total_amount").alias("avg_transaction_amount"))
 
-income_spending.count()
-print("Income vs. Average Spending done")
+# income_spending.count()
+# print("Income vs. Average Spending done")
 
 # 7. Fraud Transaction Percentage by Category
 fraud_analytics = casted_df.groupBy("category") \
@@ -183,7 +183,7 @@ write_to_kafka(city_transaction_count, CITY_TOPIC)
 write_to_kafka(device_usage, DEVICE_TOPIC)
 
 # Write income vs. average spending analytics to Kafka
-write_to_kafka(income_spending, INCOME_TOPIC)
+# write_to_kafka(income_spending, INCOME_TOPIC)
 
 # Write fraud analytics to Kafka
 write_to_kafka(fraud_analytics, FRAUD_TOPIC)

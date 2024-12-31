@@ -6,6 +6,9 @@ from pyspark.sql.functions import from_json
 KAFKA_BROKER = "kafka:9092"
 INPUT_TOPIC = "transactions"
 
+
+
+
 def write_to_kafka(df, topic):
     df.selectExpr("to_json(struct(*)) AS value") \
         .write \
@@ -128,15 +131,39 @@ fraud_age = casted_df.withColumn("age_group",
 fraud_age.count()
 print('fraud-age done')
 
-fraud_income = casted_df.groupBy("user_income") \
-    .agg(
-        count(when(col("fraud_label") == 1, 1)).alias("fraud_count"),
-        count("transaction_id").alias("total_transactions"),
-        (count(when(col("fraud_label") == 1, 1)) / count("transaction_id") * 100).alias("fraud_percentage")
-    )
+fraud_income = casted_df.withColumn("income_group", 
+    when(col("user_income") < 20000, "Under 20k")
+    .when((col("user_income") >= 20000) & (col("user_income") < 60000), "20k-59k")
+    .when((col("user_income") >= 60000) & (col("user_income") < 100000), "60k-99k")
+    .when((col("user_income") >= 100000) & (col("user_income") < 140000), "100k-139k")
+    .when(col("user_income") >= 140000, "140k+")
+) \
+.groupBy("income_group") \
+.agg(
+    count(when(col("fraud_label") == 1, 1)).alias("fraud_count"),
+    count("transaction_id").alias("total_transactions"),
+    (count(when(col("fraud_label") == 1, 1)) / count("transaction_id") * 100).alias("fraud_percentage")
+)
+
 fraud_income.count()
 print('fraud-income done')
 
+
+FRAUD_CATEGORY_TOPIC = "fraud_category"
+FRAUD_PAYMENT_TOPIC = "fraud_payment"
+FRAUD_DEVICE_TOPIC = "fraud_device"
+FRAUD_CITY_TOPIC = "fraud_city"
+FRAUD_AGE_TOPIC = "fraud_age"
+FRAUD_INCOME_TOPIC = "fraud_income"
+
+write_to_kafka(fraud_category, FRAUD_CATEGORY_TOPIC)
+write_to_kafka(fraud_payment, FRAUD_PAYMENT_TOPIC)
+write_to_kafka(fraud_device, FRAUD_DEVICE_TOPIC)
+write_to_kafka(fraud_city, FRAUD_CITY_TOPIC)
+write_to_kafka(fraud_age, FRAUD_AGE_TOPIC)
+write_to_kafka(fraud_income, FRAUD_INCOME_TOPIC)
+
+print("Everything written to Kafka")
 
 fraud_category.show()
 fraud_payment.show()

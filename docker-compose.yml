@@ -182,6 +182,15 @@ services:
     restart: always
     networks:
       - bda-network
+  
+  dashboard:
+    image: dashboard-image:latest
+    container_name: dashboard
+    ports:
+      - "3000:3000"
+    networks:
+      - bda-network
+
 volumes:
   namenode-data:
   datanode-data:

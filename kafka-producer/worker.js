@@ -8,6 +8,10 @@ const { start, end, transactionsFile, topic, bootstrapServer } = workerData;
 const kafka = new Kafka({
   clientId: `worker-${start}-${end}`,
   brokers: [bootstrapServer],
+  retry: {
+    initialRetryTime: 3000,
+    retries: 10,
+  },
 });
 
 const producer = kafka.producer();
